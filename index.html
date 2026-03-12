@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        div.centering {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        div#actions-div {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        button {
+            width: 10em;
+            height: 10em;
+        }
+        
+        button.suggested {
+            background-color: aqua;
+        }
+
+        button.unsuggested {
+            background-color: gray;
+        }
+
+        button.cheat {
+            background-color: brown;
+        }
+
+        h1 {
+            font-size: 5em;
+        }
+    </style>
+    <title>Knot tracker</title>
+</head>
+<body>
+    <div class="centering" id="main">
+        <h1 id="number-display">Current number</h1>
+        
+        <div class="actions-display-row" id="actions-div">
+            <div class="button-div">
+                <button class="unsuggested" id="twist-button">T</button>
+            </div>
+            <div class="button-div">
+                <button class="unsuggested" id="rotate-button">R</button>
+            </div>
+        </div>
+
+        <div class="actions-display-row" id="cheats-div">
+            <div class="button-div">
+                <button class="cheat" id="undo-twist-button">T'</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let numberDisplay = document.getElementById("number-display")
+        let twistButton = document.getElementById("twist-button")
+        let rotateButton = document.getElementById("rotate-button")
+        let undoTwistButton = document.getElementById("undo-twist-button")
+
+        let frac = [0,1]
+
+        numberDisplay.innerHTML = displayFrac(frac)
+
+        function changeNumber(action) {
+            if (action === "t") {
+                frac = addToFrac(frac, 1)
+            } else if (action === "r" && frac[0] !== 0) {
+                frac = rotateFrac(frac)
+            } else if (action === "ut") {
+                frac = addToFrac(frac, -1)
+            }
+
+            if (frac[0] < 0) {
+                changeSuggestion("t")
+            } else if (frac[0] > 0) {
+                changeSuggestion("r")
+            } else {
+                changeSuggestion("n")
+            }
+
+            numberDisplay.innerHTML = displayFrac(frac)
+        }
+
+        twistButton.addEventListener("click", function() {
+            changeNumber("t")
+        })
+
+        rotateButton.addEventListener("click", function() {
+            changeNumber("r")
+        })
+
+        undoTwistButton.addEventListener("click", function() {
+            changeNumber("ut")
+        })
+
+        function addToFrac(fFrac, num) {
+            return [fFrac[0] + num * fFrac[1], fFrac[1]]
+        }
+
+        function rotateFrac(fFrac) {
+            let newFrac = [-fFrac[1], fFrac[0]]
+            if (newFrac[0] < 0 && newFrac[1] < 0) {
+                newFrac = [-newFrac[0], -newFrac[1]]
+            }
+
+            return newFrac
+        }
+
+        function displayFrac(fFrac) {
+            if (fFrac[1] !== 1) {
+                return fFrac[0] + "/" + fFrac[1]
+            } else {
+                return fFrac[0]
+            }
+        }
+
+        function changeSuggestion(suggestion) {
+            if (suggestion === "t" && !twistButton.classList.contains("suggested")) {
+                twistButton.classList.remove("unsuggested")
+                twistButton.classList.add("suggested")
+                rotateButton.classList.remove("suggested")
+                rotateButton.classList.add("unsuggested")
+            } else if (suggestion === "r" && !rotateButton.classList.contains("suggested")) {
+                rotateButton.classList.remove("unsuggested")
+                rotateButton.classList.add("suggested")
+                twistButton.classList.remove("suggested")
+                twistButton.classList.add("unsuggested")
+            } else if (suggestion == "n") {
+                if (twistButton.classList.contains("suggested")) {
+                    twistButton.classList.remove("suggested")
+                    twistButton.classList.add("unsuggested")
+                }
+                if (rotateButton.classList.contains("suggested")) {
+                    rotateButton.classList.remove("suggested")
+                    rotateButton.classList.add("unsuggested")
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>
